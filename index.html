@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Email/Password Auth</title>
+</head>
+<body>
+    <h1>Firebase Email/Password Login</h1>
+    
+    <div id="loginContainer">
+        <input type="email" id="email" placeholder="Enter email" required>
+        <input type="password" id="password" placeholder="Enter password" required>
+        <button id="loginButton">Sign in</button>
+    </div>
+
+    <div id="userContainer" style="display: none;">
+        <p id="welcomeMessage"></p>
+        <button id="logoutButton">Logout</button>
+    </div>
+
+    <p id="loginMessage"></p>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-auth.js";
+        const firebaseConfig = {
+            apiKey: "AIzaSyCpQl78WguzTdbAIY3X_M13WMK4RhbejIQ",
+            authDomain: "playwrighttest-b9888.firebaseapp.com",
+            projectId: "playwrighttest-b9888",
+            storageBucket: "playwrighttest-b9888.firebasestorage.app",
+            messagingSenderId: "742427645607",
+            appId: "1:742427645607:web:9cf06855d31175945aed82"
+        };
+       
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginContainer = document.getElementById("loginContainer");
+        const userContainer = document.getElementById("userContainer");
+        const loginMessage = document.getElementById("loginMessage");
+        const welcomeMessage = document.getElementById("welcomeMessage");
+
+        document.getElementById("loginButton").addEventListener("click", () => {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            signInWithEmailAndPassword(auth, email, password)
+                .then(result => {
+                    console.log("Logged in", result.user);
+                    loginMessage.textContent = "Login successful!";
+                    loginMessage.style.color = "green";
+                })
+                .catch(error => {
+                    console.error("Login failed", error.message);
+                    loginMessage.textContent = "Login failed: " + error.message;
+                    loginMessage.style.color = "red";
+                });
+        });
+
+        document.getElementById("logoutButton").addEventListener("click", () => {
+            signOut(auth).then(() => {
+                console.log("User signed out");
+                loginMessage.textContent = "Logged out.";
+                loginMessage.style.color = "black";
+            });
+        });
+
+        // Hide login fields if already signed in
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginContainer.style.display = "none";
+                userContainer.style.display = "block";
+                welcomeMessage.textContent = `Welcome, ${user.email}`;
+            } else {
+                loginContainer.style.display = "block";
+                userContainer.style.display = "none";
+            }
+        });
+    </script>
+</body>
+</html>
